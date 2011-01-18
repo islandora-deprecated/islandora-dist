@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  $Id: build.xml 6534 2008-01-30 16:22:28Z gertsp $ -->
+<project name="Fedora Drupal_Filter Config" default="configFilter" basedir=".">
+  <description>
+		Adds and or updates the appropriate Fedora config with changes needed to enable the DrupalFilter servlet Filter.
+		Run target configFilter after installing both Fedora and Drupal.  You will have to allow connections to the Drupal database from
+		the server Fedora is running on.  This script should be run on the Fedora server and this file should be updated with the Drupal database connection information below.
+		Assuming Tomcat is the fedora container and $CATALINA_HOME and $FEDORA_HOME are set.  Using the command below you must have xmltask.jar in the same directory as
+		the build file.  This script modifies the fedora webapps web.xml so this file should be copied to a safe location before running this script.
+					>ant -lib . -f Fedora_Drupal_Filter_config.xml configFilter
+  </description>
+  <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask"/><!-- this is a 3rd party task the jar must be added to the classpath with the -lib switch-->
+
+  <tstamp>
+    <format property="TODAY" pattern="d-MMMM-yyyy"/>
+  </tstamp>
+  <property environment="env" />
+
+
+  <echo message="This script will install and configure FilterDrupal, allowing your" />
+  <echo message="Drupal module to communicate with your Fedora Repository instance." />
+  <echo message="instance.  ALL INPUT IS CASE SENSITIVE!" />
+  <echo message="----------------------" />
+  <echo />
+  <echo message="Choose filter version 3.3 for Fedora3.3 or lower." />
+  <input message="Filter version"
+                 validargs="3.3,3.4"
+                 addproperty="filter.version"/>
+  <echo />
+  <input message="Enter Drupal database server ('localhost' if fedora and drupal are on the same box)" addproperty="drupal.database.server" />
+  <echo />
+  <input message="Enter Drupal database port number" addproperty="drupal.database.port" />
+  <echo />
+  <input message="Enter Drupal database name" addproperty="drupal.database.name" />
+  <echo />
+  <input message="Enter Drupal database user name" addproperty="drupal.database.user" />
+  <echo />
+  <input message="Enter Drupal database password" addproperty="drupal.database.password" />
+  <echo />
+  <input message="Enter Fedora webb app name (Usually 'fedora')" addproperty="fedora.context" />
+  <echo />
+  <property name="filter.index" value="2"/><!-- update this if you have more extra filters.  We want our filter after the XmlUserfileFilter which is second in the list -->
+  <property name="filter-mapping.index" value="2"/><!--same as above the defaults should work in most cases-->
+
+  <echo message="You have selected:" />
+  <echo message="     Filter Version:  ${filter.version}" />
+  <echo message="     Server:          ${drupal.database.server}" />
+  <echo message="     Port number:     ${drupal.database.port}" />
+  <echo message="     Database:        ${drupal.database.name}" />
+  <echo message="     User:            ${drupal.database.user}" />
+  <echo message="     Password:        ${drupal.database.password}" />
+  <echo message="     Context:         ${fedora.context}" />
+  <echo />
+  <input message="Would you like to continue with these values?"
+                 validargs="y,n"
+                 addproperty="do.stop"/>
+  <condition property="do.abort">
+    <equals arg1="n" arg2="${do.stop}"/>
+  </condition>
+  <fail if="do.abort">Process halted by user.</fail>
+
+
+  <target name="configFilter"
+		description="create and or update files">
+		<!--Write the drupal filter.xml file-->
+   
+    <copy todir="${env.FEDORA_HOME}/server/config/" >
+      <fileset dir="${env.FEDORA_HOME}/server/config/" includes="filter-drupal.xml"/>
+      <globmapper from="*" to="*.${DSTAMP}-${TSTAMP}"/>
+
+    </copy>
+    
+    
+    <echoxml file="${env.FEDORA_HOME}/server/config/filter-drupal.xml">
+			<!--File to hold drupal connection info for the FilterDrupal servlet filter.  For multisite drupal installs you can include multiple connection elements.  We will query all the databases and assume any
+				user in any drupal db with the same username and password are the same user.  We will gather all roles for that user from all databases.  This is a potential security risk if a user in one drupal db has the same username and password
+				as another user in a seperate drupaldb.  We are also assuming all drupal dbs to be mysql.  This file should be located in the same driectory as the fedora.cfcg file-->
+      <FilterDrupal_Connection>
+        <connection server="${drupal.database.server}" dbname="${drupal.database.name}" user="${drupal.database.user}" password="${drupal.database.password}" port="${drupal.database.port}">
+          <sql>
+						<!--Different sql statement for each connection.  This is for drupal multisites that are setup using one database with table prefixes.  We don't do this but some people might.-->
+						<!--  SELECT distinct u.uid as userid, u.name as Name, u.pass as Pass, r.name as role FROM users u,role r, users_roles where u.name=? and u.pass=? and r.rid=users_roles.rid and u.uid=users_roles.uid;-->
+						SELECT DISTINCT u.uid AS userid, u.name AS Name, u.pass AS Pass,r.name AS Role FROM (users u LEFT JOIN users_roles ON u.uid=users_roles.uid) LEFT JOIN role r ON r.rid=users_roles.rid WHERE u.name=? AND u.pass=?;
+          </sql>
+        </connection>
+<service_requests>
+    <service name="djatoka">
+      <!--
+        space-separated list of allowed ips. use 'local' to allow
+        requests from same ip as fedora
+      -->
+      <allowed_ips>local</allowed_ips>
+
+      <!--
+        request uri must match this regex to be eligible for service
+        access
+      -->
+      <allowed_uri_pattern>^.*/(JP2|TEI)$</allowed_uri_pattern>
+
+      <!-- <allowed_uri_pattern>^.*$</allowed_uri_pattern> -->
+      <!-- space-separated list of roles granted to service requests -->
+      <roles>administrator fedora_anonymous</roles>
+    </service>
+  </service_requests>
+
+
+      </FilterDrupal_Connection>
+    </echoxml>
+		<!-- backup the web.xml file.  If you run the scirpt multiple times you will overwrite the original backup-->
+    <copy file="${env.CATALINA_HOME}/webapps/${fedora.context}/WEB-INF/web.xml" tofile="${env.CATALINA_HOME}/webapps/${fedora.context}/WEB-INF/web.xml.${DSTAMP}-${TSTAMP}"/>
+		<!-- update the web.xml file-->
+    <xmltask source ="${env.CATALINA_HOME}/webapps/${fedora.context}/WEB-INF/web.xml" dest="${env.CATALINA_HOME}/webapps/${fedora.context}/WEB-INF/web.xml">
+      <insert path="//*[local-name()='filter'][${filter.index}]" position="after">
+				<![CDATA[
+       					<filter>
+               				<filter-name>DrupalFilter</filter-name>
+               				<filter-class>ca.upei.roblib.fedora.servletfilter.FilterDrupal</filter-class>
+           					</filter>
+     					 ]]>
+      </insert>
+      <insert path="//*[local-name()='filter-mapping'][${filter-mapping.index}]" position="after">
+				<![CDATA[
+       					<filter-mapping>
+      					<filter-name>DrupalFilter</filter-name>
+      					<url-pattern>/*</url-pattern>
+    					</filter-mapping>
+     					 ]]>
+      </insert>
+    </xmltask>
+		<!-- copy the drupal filter jar file to the fedora WEB-INF/lib directory-->
+    <copy file="DrupalFilter${filter.version}.jar" tofile="${env.CATALINA_HOME}/webapps/${fedora.context}/WEB-INF/lib/DrupalFilter${filter.version}.jar"/>
+
+  </target>
+
+</project>
