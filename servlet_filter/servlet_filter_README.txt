@@ -9,12 +9,16 @@ This file assuems you have Fedora's required environment variables
 set up, e.g., $FEDORA_HOME and $CATALINA_HOME (The location of the Tomcat
 where Fedora is deployed.)
 
+
 DrupalFilter-3.x.jar
+====================
 
 Copy the appropriate .jar file for your version of Fedora to 
 $CATALINA_HOME/webapps/fedora/WEB-INF/lib.
 
+
 web.xml
+=======
 
 Add entries for the Drupal servlet filter into the filter and 
 filter-mappings sections of Fedora's web.xml file located at
@@ -50,7 +54,9 @@ And here
           <servlet-name>AxisServlet</servlet-name>
     </filter-mapping>
 
+
 filter-drupal.xml
+=================
 
 Copy filter-drupal.xml to $FEDORA_HOME/server/config
 
