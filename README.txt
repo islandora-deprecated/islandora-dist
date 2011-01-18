@@ -20,6 +20,15 @@ CCK PID Field module - Lets you associate a Fedora object with
 a Drupal node, to enable comments, voting, ratings and any other
 Drupal module that operates on node content.
 
+Git Submodules
+==============
+
+If you downloaded this package by cloning the islandora-dist git
+repository you will need to retrieve the submodules by running:
+
+ $ git submodule init
+ $ git submodule update
+
 Getting Started
 ===============
 
