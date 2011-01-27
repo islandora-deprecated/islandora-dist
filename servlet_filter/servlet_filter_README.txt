@@ -10,15 +10,26 @@ set up, e.g., $FEDORA_HOME and $CATALINA_HOME (The location of the Tomcat
 where Fedora is deployed.)
 
 
-DrupalFilter-3.x.jar
-====================
+With FeSL Authentication Enabled
+================================
+
+Copy fcrepo-drupalauthmodule-3.4.2 to $CATALINA_HOME/webapps/fedora/WEB-INF/lib
+Either copy jaas.conf to $FEDORA_HOME/server/config or modify your copy to 
+include the line that lists the DrupalAuthModule class.
+
+Configure filter-drupal.xml as described below. You do not need to modify
+web.xml in this case.
+
+
+With FeSL Authentication Disabled
+=================================
 
 Copy the appropriate .jar file for your version of Fedora to 
 $CATALINA_HOME/webapps/fedora/WEB-INF/lib.
 
 
 web.xml
-=======
+-------
 
 Add entries for the Drupal servlet filter into the filter and 
 filter-mappings sections of Fedora's web.xml file located at
