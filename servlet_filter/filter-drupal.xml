@@ -23,7 +23,7 @@
         <!--Different sql statement for each connection.  This is for drupal 
             multisites that are setup using one database with table prefixes.
             We don't do this but some people might.-->
-        SELECT distinct u.uid as userid, u.name as Name, u.pass as Pass, r.name as role FROM f3.users u,f3.role r, f3.users_roles where u.name=? and u.pass=? and r.rid=users_roles.rid and u.uid=users_roles.uid;
+       SELECT DISTINCT u.uid AS userid, u.name AS Name, u.pass AS Pass,r.name AS Role FROM (users u LEFT JOIN users_roles ON u.uid=users_roles.uid) LEFT JOIN role r ON r.rid=users_roles.rid WHERE u.name=? AND u.pass=?; 
     </sql>     
     </connection>
    
