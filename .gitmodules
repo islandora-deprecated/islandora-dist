@@ -1,3 +1,6 @@
 [submodule "islandora"]
 	path = islandora
 	url = git://github.com/Islandora/islandora.git
+[submodule "islandora_content_modeler"]
+	path = islandora_content_modeler
+	url = git://github.com/Islandora/islandora_content_modeler.git
