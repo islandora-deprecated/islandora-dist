@@ -4,3 +4,6 @@
 [submodule "islandora_content_modeler"]
 	path = islandora_content_modeler
 	url = git://github.com/Islandora/islandora_content_modeler.git
+[submodule "islandora_solr_search"]
+	path = islandora_solr_search
+	url = git@github.com:Islandora/islandora_solr_search.git
