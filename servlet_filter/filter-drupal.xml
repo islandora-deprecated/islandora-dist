@@ -18,7 +18,7 @@
 
          Note that 3306 is the default mysql port.
       -->
-    <connection server="localhost" port="3306" dbname="fedora3" user="root" password="root">
+    <connection server="localhost" port="3306" dbname="drupaldb" user="root" password="root">
     <sql>
         <!--Different sql statement for each connection.  This is for drupal 
             multisites that are setup using one database with table prefixes.
