@@ -7,3 +7,6 @@
 [submodule "islandora_solr_search"]
 	path = islandora_solr_search
 	url = git@github.com:Islandora/islandora_solr_search.git
+[submodule "fedora_microservices"]
+	path = fedora_microservices
+	url = git@github.com:Islandora/fedora_microservices.git
