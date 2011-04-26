@@ -1,6 +1,14 @@
 New in This Release
 ===================
 
+ - v11.1.1 -
+Minor fixes for these issues:
+https://jira.duraspace.org/browse/ISLANDORA-246
+https://jira.duraspace.org/browse/ISLANDORA-244
+https://jira.duraspace.org/browse/ISLANDORA-247
+
+ - v11.1 (2011 Q1) - 
+
 Web-based GUI for creating collections and content models. 
 Special thanks to Mark Roy from the University of Manitoba
 for contributing this component. To use it: enable the Islandora
