@@ -1,9 +1,9 @@
 This is a quick set of instructions for getting Fedora up and running
-so taht it can connect to a Drupal database for authentication. A more
+so that it can connect to a Drupal database for authentication. A more
 detailed explanation of how the servlet filter works can be found in the
 islandora guide at DuraSpace:
 
-https://wiki.duraspace.org/display/ISLANDORA/Islandora+Guide#IslandoraGuide-DrupalServletFilter
+https://wiki.duraspace.org/pages/viewpage.action?pageId=30217519
 
 This file assuems you have Fedora's required environment variables
 set up, e.g., $FEDORA_HOME and $CATALINA_HOME (The location of the Tomcat
